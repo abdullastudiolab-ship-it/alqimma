@@ -94,38 +94,29 @@ body{padding:20px;max-width:700px;margin:0 auto}
   <div class="stat"><div class="stat-val" id="sTimer" style="color:var(--orange)">-</div><div class="stat-lbl">المؤقت</div></div>
 </div>
 
-<!-- Setup -->
-<div class="section" id="setupSection">
-  <div class="section-title">⚙️ الإعدادات</div>
-  <div class="form-row">
-    <div class="form-label">عدد الطاولات</div>
-    <input class="form-input" id="inTables" type="number" value="30" min="5" max="60">
-  </div>
-  <div class="form-row">
-    <div class="form-label">اسم المناسبة</div>
-    <input class="form-input" id="inEvent" type="text" value="اللقاء السنوي لقطاع شؤون الطلاب" style="text-align:right;font-size:14px">
-  </div>
-  <div class="form-row">
-    <div class="form-label">مدة السؤال (ثانية)</div>
-    <input class="form-input" id="inTimer" type="number" value="20" min="10" max="60">
-  </div>
-  <button class="btn btn-gold btn-sm" onclick="saveSetup()">💾 حفظ</button>
-</div>
-
-<!-- Question Editor -->
-<div class="section" id="questionSection">
-  <div class="section-title">📝 الأسئلة <span style="font-weight:400;font-size:14px;color:var(--white30)">(اضغط + لإضافة سؤال)</span></div>
-  <div id="questionsContainer"></div>
-  <div class="btn-row" style="margin-top:10px">
-    <button class="btn btn-outline btn-sm" onclick="addQuestion()">+ إضافة سؤال</button>
-    <button class="btn btn-blue btn-sm" onclick="saveQuestions()">💾 حفظ الأسئلة</button>
-  </div>
-  <div style="font-size:13px;color:var(--white30);margin-top:8px" id="qCount"></div>
-</div>
-
-<!-- Controls -->
+<!-- Controls + Setup (merged) -->
 <div class="section" id="controlsSection">
-  <div class="section-title">🎮 التحكم</div>
+  <div class="section-title">🎮 التحكم والإعدادات</div>
+  
+  <!-- Settings (visible during SETUP only) -->
+  <div id="setupFields" style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,0.08)">
+    <div class="form-row">
+      <div class="form-label">عدد الطاولات</div>
+      <input class="form-input" id="inTables" type="number" value="30" min="5" max="60">
+    </div>
+    <div class="form-row">
+      <div class="form-label">اسم المناسبة</div>
+      <input class="form-input" id="inEvent" type="text" value="اللقاء السنوي لقطاع شؤون الطلاب" style="text-align:right;font-size:14px">
+    </div>
+    <div class="form-row">
+      <div class="form-label">مدة السؤال (ثانية)</div>
+      <input class="form-input" id="inTimer" type="number" value="20" min="10" max="60">
+    </div>
+    <button class="btn btn-gold btn-sm" onclick="saveSetup()">💾 حفظ الإعدادات</button>
+    <div id="saveToast" style="display:none;margin-top:8px;padding:10px 16px;border-radius:10px;background:rgba(16,185,129,0.15);border:1px solid var(--green);color:var(--green);font-size:15px;font-weight:700;text-align:center">✓ تم حفظ الإعدادات</div>
+  </div>
+  
+  <!-- Game Controls -->
   <button class="btn btn-green" id="btnLobby" onclick="send('admin_start_lobby')">🚀 فتح الانضمام</button>
   <button class="btn btn-gold" id="btnRound" onclick="send('admin_start_round')" disabled>▶️ بدء الجولة</button>
   <button class="btn btn-blue btn-sm" id="btnNext" onclick="send('admin_next')" disabled>⏭ التالي</button>
@@ -145,6 +136,17 @@ body{padding:20px;max-width:700px;margin:0 auto}
 <div class="section">
   <div class="section-title">📊 حالة الطاولات</div>
   <div class="table-grid" id="tableGrid"></div>
+</div>
+
+<!-- Question Editor -->
+<div class="section" id="questionSection">
+  <div class="section-title">📝 الأسئلة <span style="font-weight:400;font-size:14px;color:var(--white30)">(اضغط + لإضافة سؤال)</span></div>
+  <div id="questionsContainer"></div>
+  <div class="btn-row" style="margin-top:10px">
+    <button class="btn btn-outline btn-sm" onclick="addQuestion()">+ إضافة سؤال</button>
+    <button class="btn btn-blue btn-sm" onclick="saveQuestions()">💾 حفظ الأسئلة</button>
+  </div>
+  <div style="font-size:13px;color:var(--white30);margin-top:8px" id="qCount"></div>
 </div>
 
 <!-- Log -->
@@ -195,6 +197,10 @@ function saveSetup() {
     eventName: document.getElementById('inEvent').value,
     questionTimer: parseInt(document.getElementById('inTimer').value)
   });
+  // Show green toast
+  const toast = document.getElementById('saveToast');
+  toast.style.display = 'block';
+  setTimeout(() => { toast.style.display = 'none'; }, 3000);
   log('⚙️ حُفظت الإعدادات');
 }
 
@@ -242,7 +248,7 @@ function handleState(d) {
   const pMap = {SETUP:'btnLobby', LOBBY:'btnRound', RESULTS:'btnRound', NEXT_ROUND:'btnRound', PAUSED:'btnResume'};
   if (pMap[phase]) btn(pMap[phase]).classList.add('pulse-action');
 
-  document.getElementById('setupSection').style.display = phase === 'SETUP' ? 'block' : 'none';
+  document.getElementById('setupFields').style.display = phase === 'SETUP' ? 'block' : 'none';
   document.getElementById('questionSection').style.display = phase === 'SETUP' ? 'block' : 'none';
 
   // Load questions from server on first state

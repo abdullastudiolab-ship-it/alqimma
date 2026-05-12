@@ -244,11 +244,16 @@ function showScreen(name) {
   if (el) { el.classList.remove('hidden'); el.classList.add('fade-in'); }
 }
 
+let currentTableCount = 0;
 function populateTableSelect(count) {
+  if (count === currentTableCount) return;
+  currentTableCount = count;
   const sel = document.getElementById('tableSelect');
-  if (sel.options.length > 1) return;
+  const prev = sel.value;
+  sel.innerHTML = '<option value="">اختر رقم الطاولة</option>';
   for (let i = 1; i <= count; i++) sel.innerHTML += `<option value="${i}">طاولة ${i}</option>`;
-  if (playerTable) sel.value = playerTable;
+  if (prev && parseInt(prev) <= count) sel.value = prev;
+  else if (playerTable && parseInt(playerTable) <= count) sel.value = playerTable;
 }
 
 function handleState(d) {
