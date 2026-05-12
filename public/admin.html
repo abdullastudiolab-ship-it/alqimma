@@ -181,6 +181,7 @@ function connect() {
     const m = JSON.parse(e.data);
     if (m.type === 'state') handleState(m.data);
     if (m.type === 'timer') document.getElementById('sTimer').textContent = m.data.timer + 's';
+    if (m.type === 'error') { alert(m.data.message); log('⚠️ ' + m.data.message); }
   };
 }
 

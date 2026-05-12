@@ -673,6 +673,14 @@ function handleMessage(ws, msg) {
         // Always re-init when starting from LOBBY to pick up joined players
         if (gameState.phase === PHASES.LOBBY) initGame();
         
+        // Need at least 2 active tables to play
+        if (gameState.phase === PHASES.LOBBY && gameState.activeTables.length < 2) {
+          sendToClient(ws, 'error', { message: `يوجد ${gameState.activeTables.length} طاولة فقط — تحتاج طاولتين على الأقل لبدء اللعبة` });
+          gameState.phase = PHASES.LOBBY; // Stay in LOBBY
+          broadcastState();
+          return;
+        }
+        
         if (gameState.activeTables.length <= 1) {
           advanceToPhase(PHASES.WINNER);
         } else if (gameState.currentRound >= gameState.totalRounds) {
