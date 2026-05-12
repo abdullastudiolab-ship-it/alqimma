@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>القمة | الشاشة الرئيسية</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+*:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:4px}
+:root{
+  --bg:#0B1426;--bg2:#11203A;
+  --gold:#D4A853;--red:#EF4444;--green:#10B981;--blue:#3B82F6;--purple:#8B5CF6;--orange:#F59E0B;
+  --white:#FFF;--white60:#9BA8B7;--white30:#728394;
+  --glow:0 0 40px rgba(212,168,83,0.3);
+}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--white);font-family:'Tajawal',sans-serif}
+body{display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(180deg,#0B1426 0%,#0F1D35 40%,#1A2D4F 70%,#243A5C 100%)}
+
+.screen{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;text-align:center;overflow-y:auto}
+.hidden{display:none!important}
+
+.title-xl{font-size:72px;font-weight:900;background:linear-gradient(135deg,var(--gold),#F5D78E,var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.title-lg{font-size:52px;font-weight:800}
+.title-md{font-size:38px;font-weight:700}
+.subtitle{font-size:26px;color:var(--white60);font-weight:500;margin-top:12px}
+.label{font-size:28px;color:var(--white30);letter-spacing:2px}
+.big-number{font-size:150px;font-weight:900;background:linear-gradient(135deg,var(--gold),#F5D78E);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1}
+
+/* Timer */
+.timer-box{position:fixed;top:30px;left:30px;z-index:100}
+.timer-ring{width:100px;height:100px}
+.timer-ring circle{fill:none;stroke-width:6}
+.timer-ring .bg{stroke:rgba(255,255,255,0.1)}
+.timer-ring .fg{stroke:var(--gold);stroke-linecap:round;transition:stroke-dashoffset 1s linear}
+.timer-num{font-size:36px;font-weight:800;fill:var(--white)}
+
+/* Round badge */
+.round-badge{position:fixed;top:30px;right:30px;z-index:100;display:flex;align-items:center;gap:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:40px;padding:10px 24px}
+.round-badge .num{font-size:24px;font-weight:800;color:var(--gold)}
+.round-badge .lbl{font-size:18px;color:var(--white60)}
+
+/* QR */
+.qr-box{background:white;border-radius:20px;padding:20px;box-shadow:var(--glow)}
+.room-code{font-size:28px;font-weight:700;color:var(--gold);letter-spacing:4px;margin-top:10px}
+.player-counter{display:flex;align-items:center;gap:12px;margin-top:20px;font-size:28px;font-weight:700;color:var(--green)}
+.pulse-dot{width:14px;height:14px;background:var(--green);border-radius:50%;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
+
+/* ── MOUNTAIN PYRAMID ── */
+.mountain{width:90%;max-width:1100px;margin:0 auto;position:relative}
+.mountain-peak{text-align:center;margin-bottom:8px}
+.mountain-peak .icon{font-size:48px}
+.mountain-peak .label{font-size:20px;color:var(--gold);font-weight:700}
+
+.mountain-level{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;padding:10px;border-radius:12px;position:relative;transition:all 0.5s}
+.mountain-level.summit{background:linear-gradient(135deg,rgba(212,168,83,0.15),rgba(212,168,83,0.05));border:1px solid rgba(212,168,83,0.3)}
+.mountain-level.climbing{background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15)}
+.mountain-level.danger{background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.15)}
+.mountain-level.stopped{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);opacity:0.4}
+
+.level-label{position:absolute;right:-80px;top:50%;transform:translateY(-50%);font-size:14px;font-weight:700;white-space:nowrap}
+.level-label.gold{color:var(--gold)}
+.level-label.green{color:var(--green)}
+.level-label.red{color:var(--red)}
+.level-label.gray{color:var(--white30)}
+
+.mt{display:inline-flex;align-items:center;justify-content:center;min-width:80px;padding:8px 14px;border-radius:10px;font-weight:800;font-size:20px;transition:all 0.5s}
+.mt.gold{background:rgba(212,168,83,0.2);border:2px solid var(--gold);color:var(--gold)}
+.mt.green{background:rgba(16,185,129,0.12);border:2px solid rgba(16,185,129,0.3);color:var(--green)}
+.mt.red{background:rgba(239,68,68,0.12);border:2px solid rgba(239,68,68,0.3);color:var(--red);animation:shake-mt 0.5s ease-out}
+.mt.gray{background:rgba(255,255,255,0.04);border:2px solid rgba(255,255,255,0.1);color:var(--white30);opacity:0.4}
+@keyframes shake-mt{0%,100%{transform:translateY(0)}30%{transform:translateY(4px)}60%{transform:translateY(-4px)}}
+
+.mt-num{font-size:14px;margin-top:2px;opacity:0.7}
+
+/* Station markers */
+.station-marker{text-align:center;padding:8px;font-size:16px;color:var(--white30);border-top:1px dashed rgba(255,255,255,0.1);margin-top:4px}
+
+/* Question */
+.q-text{font-size:clamp(32px,4vw,48px);font-weight:800;line-height:1.5;max-width:900px;margin-bottom:20px}
+.q-choices{display:grid;grid-template-columns:1fr 1fr;gap:16px;width:80%;max-width:800px}
+.q-choice{padding:20px;border-radius:16px;background:var(--bg2);border:2px solid rgba(255,255,255,0.08);font-size:26px;font-weight:700;transition:all 0.3s}
+.q-choice.correct{border-color:var(--green);background:rgba(16,185,129,0.15);color:var(--green)}
+.q-choice.wrong{border-color:rgba(239,68,68,0.2);opacity:0.5}
+.answer-count{font-size:28px;color:var(--white60);margin-top:16px}
+.answer-count span{color:var(--green);font-weight:800}
+
+/* Winner */
+.winner-trophy{font-size:120px;animation:bounce 1s infinite}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
+.winner-table{font-size:64px;font-weight:900;color:var(--gold);text-shadow:0 0 60px rgba(212,168,83,0.5)}
+
+/* Confetti */
+.confetti-box{position:fixed;inset:0;pointer-events:none;z-index:200;overflow:hidden}
+.confetti{position:absolute;width:12px;height:12px;border-radius:2px;animation:fall 3s linear forwards}
+@keyframes fall{0%{opacity:1;transform:translateY(-10vh) rotate(0)}100%{opacity:0;transform:translateY(110vh) rotate(720deg)}}
+
+@keyframes zoom-in{from{opacity:0;transform:scale(0.3)}to{opacity:1;transform:scale(1)}}
+@keyframes slide-in{from{opacity:0;transform:translateX(-30px)}to{opacity:1;transform:translateX(0)}}
+
+.conn-dot{position:fixed;bottom:16px;left:16px;z-index:100;display:flex;align-items:center;gap:6px;font-size:14px;color:var(--white30)}
+</style>
+</head>
+<body>
+
+<div class="conn-dot"><div id="connCircle" style="width:10px;height:10px;border-radius:50%;background:var(--red)"></div><span id="connLabel">غير متصل</span></div>
+
+<div class="timer-box hidden" id="timerBox">
+  <svg class="timer-ring" viewBox="0 0 100 100" aria-label="المؤقت"><title>المؤقت</title>
+    <circle class="bg" cx="50" cy="50" r="44"/>
+    <circle class="fg" id="timerCircle" cx="50" cy="50" r="44" stroke-dasharray="276.46" stroke-dashoffset="0" transform="rotate(-90 50 50)"/>
+    <text class="timer-num" x="50" y="56" text-anchor="middle" id="timerText">0</text>
+  </svg>
+</div>
+
+<div class="round-badge hidden" id="roundBadge"><span class="num" id="roundNum"></span><span class="lbl">الجولة</span></div>
+
+<!-- SETUP -->
+<div class="screen" id="screen-SETUP">
+  <div class="title-xl">القمة</div>
+  <div class="subtitle">جاوب. اصمد. اصعد.</div>
+  <div style="font-size:18px;color:var(--white30);margin-top:30px">في انتظار بدء اللعبة</div>
+</div>
+
+<!-- LOBBY -->
+<div class="screen hidden" id="screen-LOBBY">
+  <div class="title-xl" style="font-size:52px">القمة ⛰️</div>
+  <div class="subtitle" id="eventName"></div>
+  <div style="margin-top:24px"><div class="qr-box"><canvas id="qrCanvas" width="220" height="220"></canvas></div></div>
+  <div style="font-size:20px;color:var(--white60);margin-top:10px;direction:ltr" id="joinUrl"></div>
+  <div class="room-code" id="roomCode"></div>
+  <div class="player-counter"><span class="pulse-dot"></span><span id="lobbyCount">0</span> مشارك متصل</div>
+</div>
+
+<!-- ROUND_INTRO -->
+<div class="screen hidden" id="screen-ROUND_INTRO">
+  <div class="label" id="introLabel">المحطة</div>
+  <div class="big-number" id="introNum" style="animation:zoom-in 0.6s cubic-bezier(0.34,1.56,0.64,1)">1</div>
+  <div class="subtitle" id="introSub"></div>
+</div>
+
+<!-- QUESTION -->
+<div class="screen hidden" id="screen-QUESTION">
+  <div class="q-text" id="qText"></div>
+  <div class="q-choices" id="qChoices"></div>
+  <div class="answer-count">أجاب <span id="ansCount">0</span> من <span id="totalP">0</span></div>
+</div>
+
+<!-- QUESTION_CLOSED (show correct answer) -->
+<div class="screen hidden" id="screen-QUESTION_CLOSED">
+  <div class="q-text" id="qTextC"></div>
+  <div class="q-choices" id="qChoicesC"></div>
+  <div class="title-md" style="color:var(--green);margin-top:20px">✓ الإجابة الصحيحة</div>
+</div>
+
+<!-- ELIMINATION (mountain pyramid) -->
+<div class="screen hidden" id="screen-ELIMINATION">
+  <div class="title-md" style="margin-bottom:12px;color:var(--gold)">⛰️ مين طلع ومين نزّل شنطه؟</div>
+  <div class="mountain" id="mountainView"></div>
+</div>
+
+<!-- RESULTS (same mountain but cleaner) -->
+<div class="screen hidden" id="screen-RESULTS">
+  <div class="title-md" style="margin-bottom:12px">🧗 مَن على الطريق</div>
+  <div class="mountain" id="resultsView"></div>
+</div>
+
+<!-- WINNER -->
+<div class="screen hidden" id="screen-WINNER">
+  <div class="label">اعتلوا القمة!</div>
+  <div class="winner-trophy">🏔️</div>
+  <div class="winner-table" id="winnerTable"></div>
+  <div class="title-md" style="color:var(--gold)">🏆 أبطال القمة 🏆</div>
+</div>
+
+<!-- END -->
+<div class="screen hidden" id="screen-END">
+  <div class="title-xl" style="font-size:48px">شكراً لمشاركتكم!</div>
+  <div style="margin-top:20px;font-size:24px;color:var(--white60)" id="endStats"></div>
+  <div style="margin-top:30px;font-size:28px;color:var(--gold);font-weight:700">جاوب. اصمد. اصعد.</div>
+</div>
+
+<div class="confetti-box hidden" id="confettiBox"></div>
+
+<script>
+const wsProto = location.protocol==='https:'?'wss:':'ws:';
+let ws, currentPhase='', maxTimer=0;
+
+function connect(){
+  ws = new WebSocket(`${wsProto}//${location.host}?role=display`);
+  ws.onopen=()=>{document.getElementById('connCircle').style.background='var(--green)';document.getElementById('connLabel').textContent='متصل'};
+  ws.onclose=()=>{document.getElementById('connCircle').style.background='var(--red)';document.getElementById('connLabel').textContent='غير متصل';setTimeout(connect,2000)};
+  ws.onerror=()=>{};
+  ws.onmessage=(e)=>{const m=JSON.parse(e.data);if(m.type==='state')render(m.data);if(m.type==='timer')updateTimer(m.data)};
+}
+
+function updateTimer(d){
+  const box=document.getElementById('timerBox');
+  if(!d.timerRunning&&d.timer<=0){box.classList.add('hidden');return}
+  box.classList.remove('hidden');
+  document.getElementById('timerText').textContent=d.timer;
+  if(d.timer>maxTimer)maxTimer=d.timer;
+  const pct=maxTimer>0?(1-d.timer/maxTimer):0;
+  document.getElementById('timerCircle').setAttribute('stroke-dashoffset',(276.46*pct).toFixed(2));
+  const c=d.timer<=5?'#EF4444':'#D4A853';
+  document.getElementById('timerCircle').setAttribute('stroke',c);
+  document.getElementById('timerText').setAttribute('fill',d.timer<=5?'#EF4444':'#FFF');
+}
+
+function showScreen(p){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
+  const el=document.getElementById('screen-'+p);
+  if(el)el.classList.remove('hidden');
+}
+
+function render(d){
+  const phase=d.phase;
+  const changed=phase!==currentPhase;
+  currentPhase=phase;
+  if(phase==='PAUSED')return;
+  if(changed){showScreen(phase);maxTimer=0}
+
+  const rb=document.getElementById('roundBadge');
+  if(d.currentRound>0&&!['SETUP','LOBBY','WINNER','END'].includes(phase)){
+    rb.classList.remove('hidden');
+    document.getElementById('roundNum').textContent=d.currentRound+' / '+d.totalRounds;
+  }else rb.classList.add('hidden');
+
+  if(!d.timerRunning)document.getElementById('timerBox').classList.add('hidden');
+
+  switch(phase){
+    case 'LOBBY':
+      document.getElementById('eventName').textContent=d.eventName;
+      document.getElementById('lobbyCount').textContent=d.playerCount;
+      document.getElementById('roomCode').textContent=d.roomCode;
+      const url=`${location.protocol}//${location.host}/player.html`;
+      document.getElementById('joinUrl').textContent=url;
+      const cv=document.getElementById('qrCanvas');
+      if(!cv._d){new QRious({element:cv,value:url,size:220,foreground:'#0B1426',background:'#FFF',level:'M'});cv._d=true}
+      break;
+
+    case 'ROUND_INTRO':
+      document.getElementById('introNum').textContent=d.currentRound;
+      document.getElementById('introSub').textContent=`${d.activeTableCount} طاولة على الطريق — مين بينزّل شنطه؟`;
+      break;
+
+    case 'QUESTION':
+      if(changed)renderQ(d,false);
+      document.getElementById('ansCount').textContent=d.answerCount||0;
+      document.getElementById('totalP').textContent=d.playerCount;
+      break;
+
+    case 'QUESTION_CLOSED':
+      if(changed)renderQ(d,true);
+      break;
+
+    case 'ELIMINATION':
+      if(changed)renderMountain(d,'mountainView',true);
+      break;
+
+    case 'RESULTS':
+      if(changed)renderMountain(d,'resultsView',false);
+      break;
+
+    case 'WINNER':
+      if(changed){
+        document.getElementById('winnerTable').textContent=d.winner?`طاولة ${d.winner}`:'—';
+        setTimeout(()=>launchConfetti(),500);
+      }
+      break;
+
+    case 'END':
+      document.getElementById('endStats').textContent=`تسلّق ${d.playerCount} شخص عبر ${d.currentRound} محطة`;
+      break;
+  }
+}
+
+function renderQ(d,showAns){
+  const cId=showAns?'qChoicesC':'qChoices';
+  const tId=showAns?'qTextC':'qText';
+  document.getElementById(tId).textContent=d.question.text;
+  const el=document.getElementById(cId);
+  el.innerHTML='';
+  d.question.choices.forEach((c,i)=>{
+    let cls='q-choice';
+    if(showAns)cls+=i===d.correctIndex?' correct':' wrong';
+    el.innerHTML+=`<div class="${cls}">${c}</div>`;
+  });
+}
+
+function renderMountain(d, containerId, showElimination){
+  const el=document.getElementById(containerId);
+  if(!el)return;
+  
+  // Build ranked list: active tables sorted by score (best first)
+  const active=(d.activeTables||[]).map(t=>({
+    table:t,
+    score:(d.tableResults&&d.tableResults[t])?d.tableResults[t].correct:0,
+    rate:(d.tableResults&&d.tableResults[t])?d.tableResults[t].rate:0,
+    total:(d.tableScores||{})[t]||0
+  })).sort((a,b)=>b.rate-a.rate||b.score-a.score||b.total-a.total);
+
+  const stopped=(d.roundEliminated||[]).map(t=>({
+    table:t,
+    score:(d.tableResults&&d.tableResults[t])?d.tableResults[t].correct:0,
+    rate:(d.tableResults&&d.tableResults[t])?d.tableResults[t].rate:0
+  })).sort((a,b)=>a.rate-b.rate);
+
+  const prevStopped=(d.eliminatedTables||[]).filter(t=>!(d.roundEliminated||[]).includes(t));
+
+  // Build pyramid levels
+  let html='';
+  
+  // Peak icon
+  html+=`<div class="mountain-peak"><div class="icon">🏔️</div><div class="label">القمة</div></div>`;
+  
+  // Split active into tiers based on performance
+  const tiers=[];
+  if(active.length>0){
+    // Top tier: best performers
+    const topCount=Math.max(1,Math.ceil(active.length*0.25));
+    const midCount=Math.max(1,Math.ceil(active.length*0.5));
+    
+    tiers.push({tables:active.slice(0,topCount),level:'summit',label:'شامّين ريحة القمة',labelClass:'gold'});
+    if(active.length>topCount){
+      tiers.push({tables:active.slice(topCount,topCount+midCount),level:'climbing',label:'في قلب الجبل',labelClass:'green'});
+    }
+    if(active.length>topCount+midCount){
+      tiers.push({tables:active.slice(topCount+midCount),level:'climbing',label:'لسّا في السفح',labelClass:'green'});
+    }
+  }
+
+  // Render active tiers
+  tiers.forEach(tier=>{
+    html+=`<div class="mountain-level ${tier.level}">`;
+    tier.tables.forEach(t=>{
+      const cls=tier.level==='summit'?'gold':'green';
+      html+=`<div class="mt ${cls}">طاولة ${t.table}<div class="mt-num">${Math.round(t.rate*100)}%</div></div>`;
+    });
+    html+=`</div>`;
+  });
+
+  // Station separator
+  if(stopped.length>0||prevStopped.length>0){
+    html+=`<div class="station-marker">🎒 نزّلوا الشنط — محطة الجولة ${d.currentRound}</div>`;
+  }
+
+  // Just-stopped tables (this round) — highlighted
+  if(stopped.length>0){
+    html+=`<div class="mountain-level danger">`;
+    stopped.forEach(t=>{
+      html+=`<div class="mt red">طاولة ${t.table}<div class="mt-num">نزّلوا الشنط</div></div>`;
+    });
+    html+=`</div>`;
+  }
+
+  // Previously stopped tables (grayed out)
+  if(prevStopped.length>0){
+    html+=`<div class="mountain-level stopped">`;
+    prevStopped.forEach(t=>{
+      html+=`<div class="mt gray">${t}</div>`;
+    });
+    html+=`</div>`;
+  }
+
+  // Base
+  html+=`<div style="text-align:center;margin-top:8px;font-size:16px;color:var(--white30)">🌍 نقطة الانطلاق</div>`;
+
+  el.innerHTML=html;
+}
+
+function launchConfetti(){
+  const c=document.getElementById('confettiBox');
+  c.classList.remove('hidden');
+  const colors=['#D4A853','#3B82F6','#10B981','#F59E0B','#EF4444','#8B5CF6'];
+  for(let i=0;i<120;i++){
+    const p=document.createElement('div');
+    p.className='confetti';
+    p.style.left=Math.random()*100+'%';
+    p.style.background=colors[Math.floor(Math.random()*colors.length)];
+    p.style.animationDelay=Math.random()*2+'s';
+    p.style.animationDuration=(2+Math.random()*2)+'s';
+    p.style.width=(8+Math.random()*8)+'px';
+    p.style.height=(8+Math.random()*8)+'px';
+    c.appendChild(p);
+  }
+  setTimeout(()=>{c.innerHTML='';c.classList.add('hidden')},5000);
+}
+
+connect();
+</script>
+</body>
+</html>

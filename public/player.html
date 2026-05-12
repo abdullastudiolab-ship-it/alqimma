@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>القمة | شارك</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+*:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:4px}
+:root{--bg:#0D0A1A;--bg2:#1A1530;--gold:#D4A853;--red:#EF4444;--green:#10B981;--blue:#3B82F6;--purple:#8B5CF6;--white:#FFF;--white60:#9BA8B7;--white30:#728394}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--white);font-family:'Tajawal',sans-serif}
+body{display:flex;flex-direction:column}
+.screen{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.hidden{display:none!important}
+
+.logo{font-size:32px;font-weight:900;background:linear-gradient(135deg,var(--gold),#F5D78E);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.heading{font-size:24px;font-weight:800;color:var(--white);line-height:1.4;margin:12px 0}
+.subtext{font-size:16px;color:var(--white60);line-height:1.5}
+
+.input{width:100%;max-width:340px;height:56px;border-radius:16px;border:2px solid rgba(255,255,255,0.15);background:var(--bg2);color:var(--white);font-family:'Tajawal';font-size:20px;font-weight:600;text-align:center;outline:none;padding:0 16px}
+.input:focus{border-color:var(--gold)}
+.input.err{border-color:var(--red);animation:shake 0.4s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%,75%{transform:translateX(-6px)}50%{transform:translateX(6px)}}
+
+.select{width:100%;max-width:340px;height:56px;border-radius:16px;border:2px solid rgba(255,255,255,0.15);background:var(--bg2);color:var(--white);font-family:'Tajawal';font-size:20px;font-weight:600;text-align:center;outline:none;-webkit-appearance:none}
+.select:focus{border-color:var(--gold)}
+.select.err{border-color:var(--red);animation:shake 0.4s}
+.select option{background:var(--bg);color:var(--white)}
+
+.btn{width:100%;max-width:340px;height:60px;border-radius:16px;border:none;font-family:'Tajawal';font-size:22px;font-weight:800;cursor:pointer;transition:all 0.2s}
+.btn:active{transform:scale(0.96)}
+.btn-gold{background:linear-gradient(135deg,var(--gold),#F5D78E);color:var(--bg)}
+.btn:disabled{opacity:0.4;transform:none}
+
+.choices{width:100%;max-width:380px;display:flex;flex-direction:column;gap:10px;margin-top:16px}
+.choice-btn{width:100%;min-height:60px;border-radius:16px;border:2px solid rgba(255,255,255,0.12);background:var(--bg2);color:var(--white);font-family:'Tajawal';font-size:20px;font-weight:700;cursor:pointer;padding:14px 20px;text-align:center;transition:all 0.2s}
+.choice-btn:active{transform:scale(0.97)}
+.choice-btn.selected{border-color:var(--gold);background:rgba(212,168,83,0.15);color:var(--gold)}
+.choice-btn.correct{border-color:var(--green);background:rgba(16,185,129,0.15);color:var(--green)}
+.choice-btn.wrong{border-color:var(--red);background:rgba(239,68,68,0.1);color:var(--red)}
+.choice-btn:disabled{cursor:default;transform:none}
+
+.timer-bar{width:100%;max-width:380px;height:8px;background:rgba(255,255,255,0.1);border-radius:4px;margin-top:16px;overflow:hidden}
+.timer-fill{height:100%;background:var(--gold);border-radius:4px;transition:width 1s linear}
+.timer-fill.danger{background:var(--red)}
+
+.status-card{width:100%;max-width:340px;padding:28px;border-radius:20px;background:var(--bg2);border:1px solid rgba(255,255,255,0.08);text-align:center}
+.status-icon{font-size:64px;margin-bottom:12px}
+.status-text{font-size:22px;font-weight:700}
+.status-sub{font-size:16px;color:var(--white60);margin-top:8px}
+
+/* Eliminated → Station stop screen */
+.stop-screen{background:linear-gradient(180deg,rgba(212,168,83,0.08) 0%,var(--bg) 50%)}
+.stop-emoji{font-size:100px;animation:wobble 2s infinite}
+@keyframes wobble{0%,100%{transform:rotate(0)}25%{transform:rotate(-10deg)}75%{transform:rotate(10deg)}}
+.stop-msg{font-size:22px;font-weight:700;color:var(--gold);margin-top:16px;line-height:1.5}
+
+/* Survived screen */
+.survived-emoji{font-size:80px;animation:jump 1s infinite}
+@keyframes jump{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+
+.conn-bar{position:fixed;top:0;left:0;right:0;height:4px;z-index:100}
+.conn-bar.on{background:var(--green)}
+.conn-bar.off{background:var(--red);animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+
+.my-info{margin-top:16px;padding:12px 20px;border-radius:12px;background:var(--bg2);font-size:16px;color:var(--white60);width:100%;max-width:340px;display:flex;justify-content:space-between}
+.my-info .val{color:var(--gold);font-weight:800}
+
+/* Disconnection overlay */
+#disconnOverlay{position:fixed;inset:0;background:rgba(13,10,26,0.92);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{width:40px;height:40px;border:3px solid var(--white30);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite;margin-top:16px}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.fade-in{animation:fadeIn 0.4s ease-out}
+</style>
+</head>
+<body>
+
+<div class="conn-bar off" id="connBar"></div>
+<div id="disconnOverlay" class="hidden">
+  <div style="font-size:48px">📡</div>
+  <div style="font-size:22px;font-weight:700;margin-top:16px">انقطع الاتصال</div>
+  <div style="font-size:16px;color:var(--white60);margin-top:8px">جاري إعادة المحاولة...</div>
+  <div class="spinner"></div>
+</div>
+
+<!-- JOIN -->
+<div class="screen" id="screen-join">
+  <div class="logo" style="margin-bottom:20px">القمة</div>
+  <div class="heading">انضم للعبة</div>
+  <div class="subtext" style="margin-bottom:20px">أدخل اسمك ورقم طاولتك</div>
+  <label for="nameInput" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">اسمك الأول</label>
+  <input class="input" id="nameInput" type="text" placeholder="اسمك الأول" maxlength="20" autocomplete="off" style="margin-bottom:12px">
+  <label for="tableSelect" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">رقم الطاولة</label>
+  <select class="select" id="tableSelect"><option value="">اختر رقم الطاولة</option></select>
+  <button class="btn btn-gold" id="joinBtn" onclick="joinGame()" style="margin-top:16px">انضمام</button>
+  <div style="font-size:14px;margin-top:12px;color:var(--white30)" id="joinError"></div>
+</div>
+
+<!-- WAITING -->
+<div class="screen hidden" id="screen-waiting">
+  <div class="status-card">
+    <div class="status-icon">⏳</div>
+    <div class="status-text" id="waitingText" aria-live="polite">في انتظار بدء اللعبة...</div>
+    <div class="status-sub" id="waitingInfo"></div>
+  </div>
+  <div class="my-info hidden" id="myInfo"><span id="myInfoLabel"></span><span class="val" id="myInfoVal"></span></div>
+</div>
+
+<!-- QUESTION -->
+<div class="screen hidden" id="screen-question">
+  <div class="heading" id="pQuestionText" style="font-size:20px;line-height:1.5"></div>
+  <div class="timer-bar" role="progressbar" aria-label="الوقت المتبقي"><div class="timer-fill" id="qTimerFill"></div></div>
+  <div class="choices" id="pChoices"></div>
+</div>
+
+<!-- ANSWERED — waiting for result -->
+<div class="screen hidden" id="screen-answered">
+  <div class="status-card" id="answeredCard">
+    <div class="status-icon" id="answeredIcon">⏳</div>
+    <div class="status-text" id="answeredText">تم تسجيل إجابتك</div>
+    <div class="status-sub" id="answeredSub">انتظر إغلاق الإجابات...</div>
+  </div>
+</div>
+
+<!-- CORRECT answer feedback -->
+<div class="screen hidden" id="screen-correct">
+  <div class="status-card" style="border-color:rgba(16,185,129,0.3)">
+    <div class="status-icon">✅</div>
+    <div class="status-text" style="color:var(--green)">إجابة صحيحة!</div>
+    <div class="status-sub">أحسنت! 🎉</div>
+  </div>
+</div>
+
+<!-- WRONG answer feedback -->
+<div class="screen hidden" id="screen-wrong">
+  <div class="status-card" style="border-color:rgba(239,68,68,0.2)">
+    <div class="status-icon">❌</div>
+    <div class="status-text" style="color:var(--red)">إجابة خاطئة</div>
+    <div class="status-sub" id="wrongCorrect"></div>
+  </div>
+</div>
+
+<!-- SURVIVED -->
+<div class="screen hidden" id="screen-survived">
+  <div class="survived-emoji">💪</div>
+  <div class="heading" style="color:var(--green);font-size:28px" id="survivedText">على الطريق! 🧗</div>
+  <div class="subtext" id="survivedSub"></div>
+  <div class="my-info" style="margin-top:20px"><span>إجابات صحيحة</span><span class="val" id="survivedScore">0</span></div>
+</div>
+
+<!-- ELIMINATED -->
+<div class="screen stop-screen hidden" id="screen-eliminated">
+  <div class="stop-emoji" id="stopEmoji">⛺</div>
+  <div class="heading" style="color:var(--gold);font-size:26px">نزّلوا الشنط... وصلتوا لهنا!</div>
+  <div class="stop-msg" id="stopMsg"></div>
+  <div class="subtext" style="margin-top:20px">استريحوا وشجّعوا الباقين! 📣</div>
+</div>
+
+<!-- SPECTATOR (already eliminated, watching) -->
+<div class="screen hidden" id="screen-spectator">
+  <div class="status-card" style="opacity:0.7">
+    <div class="status-icon">🏕️</div>
+    <div class="status-text">استريحوا وشجّعوا الباقين 📣</div>
+    <div class="status-sub">شاهدوا مين بيعتلي القمة!</div>
+  </div>
+</div>
+
+<!-- WINNER -->
+<div class="screen hidden" id="screen-winner">
+  <div id="winnerContent"></div>
+</div>
+
+<script>
+let ws, playerId = localStorage.getItem('qm_pid'), playerName = localStorage.getItem('qm_name') || '';
+let playerTable = localStorage.getItem('qm_table') || '', joined = false, maxTimer = 0;
+
+function safeSend(type, data) {
+  if (ws && ws.readyState === WebSocket.OPEN) { ws.send(JSON.stringify({type,data})); return true; }
+  return false;
+}
+
+function connect() {
+  const p = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  ws = new WebSocket(`${p}//${location.host}?role=player`);
+  ws.onopen = () => {
+    document.getElementById('connBar').className = 'conn-bar on';
+    document.getElementById('disconnOverlay').classList.add('hidden');
+    if (playerId) ws.send(JSON.stringify({type:'reconnect',data:{playerId}}));
+  };
+  ws.onclose = () => {
+    document.getElementById('connBar').className = 'conn-bar off';
+    if (joined) document.getElementById('disconnOverlay').classList.remove('hidden');
+    setTimeout(connect, 2000);
+  };
+  ws.onerror = () => {};
+  ws.onmessage = (e) => {
+    const m = JSON.parse(e.data);
+    if (m.type === 'state') handleState(m.data);
+    if (m.type === 'timer') handleTimer(m.data);
+    if (m.type === 'joined') {
+      playerId = m.data.playerId; playerName = m.data.name; playerTable = m.data.table;
+      localStorage.setItem('qm_pid', playerId);
+      localStorage.setItem('qm_name', playerName);
+      localStorage.setItem('qm_table', playerTable);
+      joined = true;
+    }
+    if (m.type === 'answer_confirmed') {
+      showScreen('answered');
+      // Show correct/wrong immediately
+      if (m.data.correct) {
+        document.getElementById('answeredIcon').textContent = '✅';
+        document.getElementById('answeredText').textContent = 'إجابة صحيحة!';
+        document.getElementById('answeredText').style.color = 'var(--green)';
+      } else {
+        document.getElementById('answeredIcon').textContent = '❌';
+        document.getElementById('answeredText').textContent = 'إجابة خاطئة';
+        document.getElementById('answeredText').style.color = 'var(--red)';
+      }
+      document.getElementById('answeredSub').textContent = 'انتظر نتيجة الجولة...';
+    }
+    if (m.type === 'reconnected') { joined = true; playerId = m.data.playerId; }
+    if (m.type === 'error') {
+      document.getElementById('joinError').textContent = m.data.message;
+      document.getElementById('joinError').style.color = '#EF4444';
+    }
+  };
+}
+
+function handleTimer(d) {
+  const fill = document.getElementById('qTimerFill');
+  if (d.timerRunning && d.timer > maxTimer) maxTimer = d.timer;
+  const pct = maxTimer > 0 ? (d.timer / maxTimer) * 100 : 0;
+  if (fill) { fill.style.width = pct + '%'; fill.classList.toggle('danger', d.timer <= 5); }
+}
+
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+  const el = document.getElementById('screen-' + name);
+  if (el) { el.classList.remove('hidden'); el.classList.add('fade-in'); }
+}
+
+function populateTableSelect(count) {
+  const sel = document.getElementById('tableSelect');
+  if (sel.options.length > 1) return;
+  for (let i = 1; i <= count; i++) sel.innerHTML += `<option value="${i}">طاولة ${i}</option>`;
+  if (playerTable) sel.value = playerTable;
+}
+
+function handleState(d) {
+  if (d.tableCount) populateTableSelect(d.tableCount);
+
+  if (!joined) {
+    if (playerId && d.player) joined = true;
+    else { showScreen('join'); if (playerName) document.getElementById('nameInput').value = playerName; return; }
+  }
+
+  // Server reset detection
+  if (joined && d.phase === 'SETUP' && !d.player) {
+    joined = false; playerId = null;
+    localStorage.removeItem('qm_pid');
+    showScreen('join');
+    if (playerName) document.getElementById('nameInput').value = playerName;
+    return;
+  }
+
+  const phase = d.phase;
+
+  // If player is already eliminated (from a previous round)
+  if (d.isEliminated && !d.justEliminated && !['SETUP','LOBBY','WINNER','END'].includes(phase)) {
+    showScreen('spectator');
+    return;
+  }
+
+  switch (phase) {
+    case 'SETUP':
+    case 'LOBBY':
+      showScreen('waiting');
+      document.getElementById('waitingText').textContent = phase === 'LOBBY' ? 'أنت متصل!' : 'في انتظار فتح اللعبة...';
+      document.getElementById('waitingInfo').textContent = `${playerName} — طاولة ${playerTable}`;
+      break;
+
+    case 'ROUND_INTRO':
+      showScreen('waiting');
+      document.getElementById('waitingText').textContent = `الجولة ${d.currentRound}`;
+      document.getElementById('waitingInfo').textContent = 'استعد للسؤال...';
+      maxTimer = 0;
+      break;
+
+    case 'QUESTION':
+      if (!d.hasAnswered) {
+        showScreen('question');
+        renderQuestion(d);
+      } else {
+        showScreen('answered');
+      }
+      break;
+
+    case 'QUESTION_CLOSED':
+      if (d.hasAnswered && d.correctIndex !== undefined) {
+        const wasCorrect = d.myAnswer === d.correctIndex;
+        showScreen(wasCorrect ? 'correct' : 'wrong');
+        if (!wasCorrect) {
+          document.getElementById('wrongCorrect').textContent = 'الإجابة الصحيحة: ' + d.question.choices[d.correctIndex];
+        }
+      } else {
+        showScreen('answered');
+        document.getElementById('answeredSub').textContent = 'لم تجاوب في الوقت!';
+      }
+      break;
+
+    case 'ELIMINATION':
+      if (d.justEliminated) {
+        showScreen('eliminated');
+        document.getElementById('stopEmoji').textContent = d.stopEmoji || '💀';
+        document.getElementById('stopMsg').textContent = d.stopMsg || 'توقفتم عند هذه المحطة';
+      } else if (d.isActive) {
+        showScreen('survived');
+        document.getElementById('survivedText').textContent = 'على الطريق! 🧗 💪';
+        document.getElementById('survivedSub').textContent = `${d.activeTableCount} طاولة على الطريق`;
+        document.getElementById('survivedScore').textContent = d.myTableScore || 0;
+      }
+      break;
+
+    case 'RESULTS':
+    case 'NEXT_ROUND':
+      if (d.isEliminated) {
+        showScreen('spectator');
+      } else {
+        showScreen('survived');
+        document.getElementById('survivedText').textContent = 'لسّا على الطريق! 🧗';
+        document.getElementById('survivedSub').textContent = `${d.activeTableCount} طاولة على الطريق`;
+        document.getElementById('survivedScore').textContent = d.myTableScore || 0;
+      }
+      break;
+
+    case 'WINNER':
+    case 'END':
+      showScreen('winner');
+      renderWinner(d);
+      break;
+
+    case 'PAUSED':
+      showScreen('waiting');
+      document.getElementById('waitingText').textContent = '⏸ إيقاف مؤقت';
+      break;
+  }
+}
+
+function renderQuestion(d) {
+  if (!d.question) return;
+  document.getElementById('pQuestionText').textContent = d.question.text;
+  const c = document.getElementById('pChoices');
+  c.innerHTML = '';
+  d.question.choices.forEach((ch, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = ch;
+    btn.onclick = () => selectChoice(i);
+    c.appendChild(btn);
+  });
+}
+
+function renderWinner(d) {
+  const el = document.getElementById('winnerContent');
+  const isWinner = d.winner && parseInt(playerTable) === d.winner;
+  if (isWinner) {
+    el.innerHTML = `<div style="font-size:80px;margin-bottom:16px">🏆</div>
+      <div class="heading" style="color:var(--gold);font-size:32px">اعتلوا القمة!</div>
+      <div class="subtext">مبروك! أنتم القمة صامدة! 🎉</div>`;
+  } else {
+    el.innerHTML = `<div style="font-size:60px;margin-bottom:16px">👏</div>
+      <div class="heading">الفائز: طاولة ${d.winner || '—'}</div>
+      <div class="subtext">شكراً لمشاركتكم!</div>`;
+  }
+}
+
+function joinGame() {
+  const nEl = document.getElementById('nameInput'), tEl = document.getElementById('tableSelect');
+  const name = nEl.value.trim(), table = tEl.value;
+  nEl.classList.remove('err'); tEl.classList.remove('err');
+  if (!name) { document.getElementById('joinError').textContent = 'أدخل اسمك'; nEl.classList.add('err'); nEl.focus(); return; }
+  if (!table) { document.getElementById('joinError').textContent = 'اختر رقم الطاولة'; tEl.classList.add('err'); tEl.focus(); return; }
+  if (!safeSend('join', {name, tableNumber: parseInt(table)})) {
+    document.getElementById('joinError').textContent = 'لا يوجد اتصال'; return;
+  }
+  document.getElementById('joinBtn').disabled = true;
+  document.getElementById('joinError').textContent = 'جاري الانضمام...';
+  setTimeout(() => { document.getElementById('joinBtn').disabled = false; }, 2000);
+}
+
+function selectChoice(i) {
+  if (!safeSend('answer', {choiceIndex: i})) return;
+  document.querySelectorAll('.choice-btn').forEach((b, idx) => {
+    b.classList.toggle('selected', idx === i);
+    b.disabled = true;
+  });
+}
+
+connect();
+document.addEventListener('touchstart', (e) => { if (e.touches.length > 1) e.preventDefault(); }, {passive:false});
+</script>
+</body>
+</html>

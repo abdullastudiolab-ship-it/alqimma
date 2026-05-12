@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>القمة | لوحة التحكم</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+*:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:4px}
+:root{--bg:#0D0A1A;--bg2:#1A1530;--bg3:#241E3A;--gold:#D4A853;--blue:#3B82F6;--green:#10B981;--orange:#F59E0B;--red:#EF4444;--purple:#8B5CF6;--white:#FFF;--white60:#9BA8B7;--white30:#728394}
+html,body{min-height:100%;background:var(--bg);color:var(--white);font-family:'Tajawal',sans-serif}
+body{padding:20px;max-width:700px;margin:0 auto}
+
+.header{display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:1px solid rgba(255,255,255,0.1);margin-bottom:20px}
+.logo{font-size:24px;font-weight:900;background:linear-gradient(135deg,var(--gold),#F5D78E);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.conn{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;padding:6px 12px;border-radius:20px}
+.conn.on{background:rgba(16,185,129,0.15);color:var(--green)}
+.conn.off{background:rgba(239,68,68,0.15);color:var(--red)}
+.conn-dot{width:8px;height:8px;border-radius:50%}
+.conn.on .conn-dot{background:var(--green)}
+.conn.off .conn-dot{background:var(--red)}
+
+.phase-card{text-align:center;padding:16px;border-radius:16px;background:var(--bg2);border:1px solid rgba(255,255,255,0.08);margin-bottom:16px}
+.phase-name{font-size:26px;font-weight:800;color:var(--gold);margin-top:4px}
+.phase-info{font-size:15px;color:var(--white60);margin-top:4px}
+
+.stats{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:16px}
+.stat{text-align:center;padding:12px 8px;border-radius:12px;background:var(--bg2);border:1px solid rgba(255,255,255,0.06)}
+.stat-val{font-size:26px;font-weight:900;color:var(--gold)}
+.stat-lbl{font-size:13px;color:var(--white60);margin-top:2px}
+
+.section{background:var(--bg2);border-radius:16px;padding:20px;margin-bottom:16px;border:1px solid rgba(255,255,255,0.06)}
+.section-title{font-size:18px;font-weight:700;color:var(--gold);margin-bottom:14px}
+
+.form-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.form-label{font-size:15px;font-weight:600;color:var(--white60);min-width:100px}
+.form-input{flex:1;height:44px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:var(--bg3);color:var(--white);font-family:'Tajawal';font-size:16px;font-weight:600;text-align:center;padding:0 12px;outline:none}
+.form-input:focus{border-color:var(--gold)}
+
+.btn{width:100%;height:52px;border-radius:14px;border:none;font-family:'Tajawal';font-size:18px;font-weight:800;cursor:pointer;transition:all 0.2s;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn:active{transform:scale(0.97)}
+.btn:disabled{opacity:0.3;cursor:not-allowed;transform:none}
+.btn-gold{background:linear-gradient(135deg,var(--gold),#F5D78E);color:var(--bg)}
+.btn-green{background:var(--green);color:var(--white)}
+.btn-blue{background:var(--blue);color:var(--white)}
+.btn-orange{background:var(--orange);color:var(--bg)}
+.btn-red{background:var(--red);color:var(--white)}
+.btn-outline{background:transparent;border:2px solid rgba(255,255,255,0.2);color:var(--white60)}
+.btn-sm{height:44px;font-size:16px}
+.btn-row{display:flex;gap:10px}
+.btn-row .btn{flex:1}
+.btn.pulse-action{animation:btn-pulse 2s infinite}
+@keyframes btn-pulse{0%,100%{box-shadow:0 0 0 0 rgba(212,168,83,0.4)}50%{box-shadow:0 0 0 8px rgba(212,168,83,0)}}
+
+/* Question Editor */
+.q-editor{border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;margin-bottom:12px;background:rgba(255,255,255,0.02)}
+.q-editor .q-num{font-size:14px;font-weight:700;color:var(--purple);margin-bottom:8px}
+.q-input{width:100%;height:40px;border-radius:8px;border:1px solid rgba(255,255,255,0.12);background:var(--bg3);color:var(--white);font-family:'Tajawal';font-size:15px;padding:0 12px;outline:none;margin-bottom:6px;text-align:right}
+.q-input:focus{border-color:var(--gold)}
+.q-input.q-text{height:48px;font-size:16px;font-weight:700}
+.q-choices-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.q-choice-row{display:flex;align-items:center;gap:6px}
+.q-choice-row input[type=radio]{accent-color:var(--green);width:18px;height:18px}
+.q-choice-row label{font-size:13px;color:var(--white30)}
+.q-del{background:none;border:none;color:var(--red);cursor:pointer;font-size:20px;padding:4px}
+
+.table-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(55px,1fr));gap:6px;margin-top:10px}
+.tg-cell{text-align:center;padding:6px 4px;border-radius:8px;background:var(--bg3);font-size:13px;font-weight:700}
+.tg-cell.active{background:rgba(16,185,129,0.15);color:var(--green);border:1px solid rgba(16,185,129,0.3)}
+.tg-cell.dead{background:rgba(239,68,68,0.08);color:var(--red);opacity:0.4;border:1px solid rgba(239,68,68,0.1)}
+.tg-cell.empty{opacity:0.2}
+
+.log{max-height:120px;overflow-y:auto;font-size:13px;color:var(--white30);padding:10px;background:var(--bg3);border-radius:8px;margin-top:10px;direction:ltr;text-align:left;font-family:'Tajawal',monospace}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">القمة — لوحة التحكم</div>
+  <div class="conn off" id="connBadge"><div class="conn-dot"></div><span id="connText">غير متصل</span></div>
+</div>
+
+<div class="phase-card">
+  <div style="font-size:14px;color:var(--white30)">الحالة</div>
+  <div class="phase-name" id="phaseName">إعداد</div>
+  <div class="phase-info" id="phaseInfo"></div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-val" id="sPlayers">0</div><div class="stat-lbl">مشارك</div></div>
+  <div class="stat"><div class="stat-val" id="sRound">0</div><div class="stat-lbl">الجولة</div></div>
+  <div class="stat"><div class="stat-val" id="sAlive">0</div><div class="stat-lbl">طاولة حية</div></div>
+  <div class="stat"><div class="stat-val" id="sTimer" style="color:var(--orange)">-</div><div class="stat-lbl">المؤقت</div></div>
+</div>
+
+<!-- Setup -->
+<div class="section" id="setupSection">
+  <div class="section-title">⚙️ الإعدادات</div>
+  <div class="form-row">
+    <div class="form-label">عدد الطاولات</div>
+    <input class="form-input" id="inTables" type="number" value="30" min="5" max="60">
+  </div>
+  <div class="form-row">
+    <div class="form-label">اسم المناسبة</div>
+    <input class="form-input" id="inEvent" type="text" value="اللقاء السنوي لقطاع شؤون الطلاب" style="text-align:right;font-size:14px">
+  </div>
+  <div class="form-row">
+    <div class="form-label">مدة السؤال (ثانية)</div>
+    <input class="form-input" id="inTimer" type="number" value="20" min="10" max="60">
+  </div>
+  <button class="btn btn-gold btn-sm" onclick="saveSetup()">💾 حفظ</button>
+</div>
+
+<!-- Question Editor -->
+<div class="section" id="questionSection">
+  <div class="section-title">📝 الأسئلة <span style="font-weight:400;font-size:14px;color:var(--white30)">(اضغط + لإضافة سؤال)</span></div>
+  <div id="questionsContainer"></div>
+  <div class="btn-row" style="margin-top:10px">
+    <button class="btn btn-outline btn-sm" onclick="addQuestion()">+ إضافة سؤال</button>
+    <button class="btn btn-blue btn-sm" onclick="saveQuestions()">💾 حفظ الأسئلة</button>
+  </div>
+  <div style="font-size:13px;color:var(--white30);margin-top:8px" id="qCount"></div>
+</div>
+
+<!-- Controls -->
+<div class="section" id="controlsSection">
+  <div class="section-title">🎮 التحكم</div>
+  <button class="btn btn-green" id="btnLobby" onclick="send('admin_start_lobby')">🚀 فتح الانضمام</button>
+  <button class="btn btn-gold" id="btnRound" onclick="send('admin_start_round')" disabled>▶️ بدء الجولة</button>
+  <button class="btn btn-blue btn-sm" id="btnNext" onclick="send('admin_next')" disabled>⏭ التالي</button>
+  <div class="btn-row">
+    <button class="btn btn-orange btn-sm" id="btnPause" onclick="send('admin_pause')" disabled>⏸ إيقاف</button>
+    <button class="btn btn-green btn-sm" id="btnResume" onclick="send('admin_resume')" disabled>▶ استئناف</button>
+  </div>
+  <button class="btn btn-outline btn-sm" id="btnSkip" onclick="send('admin_skip_round')" disabled>⏩ تخطي</button>
+  <div style="margin-top:10px;border-top:1px solid rgba(255,255,255,0.08);padding-top:10px">
+    <button class="btn btn-gold btn-sm" id="btnWinner" onclick="if(confirm('إعلان الفائز؟'))send('admin_show_winner')" disabled>🏆 إعلان الفائز</button>
+    <button class="btn btn-red btn-sm" id="btnEnd" onclick="if(confirm('إنهاء اللعبة؟'))send('admin_end')" disabled>⏹ إنهاء</button>
+    <button class="btn btn-outline btn-sm hidden" id="btnReset" onclick="if(confirm('بدء لعبة جديدة؟'))send('admin_reset')">🔄 لعبة جديدة</button>
+  </div>
+</div>
+
+<!-- Table Monitor -->
+<div class="section">
+  <div class="section-title">📊 حالة الطاولات</div>
+  <div class="table-grid" id="tableGrid"></div>
+</div>
+
+<!-- Log -->
+<div class="section">
+  <div class="section-title">📋 السجل</div>
+  <div class="log" id="logBox"></div>
+</div>
+
+<script>
+let ws, gamePhase = '', localQuestions = [];
+
+const PHASE_NAMES = {
+  SETUP:'إعداد', LOBBY:'انتظار الانضمام', ROUND_INTRO:'بداية المحطة',
+  QUESTION:'السؤال مفتوح', QUESTION_CLOSED:'الإجابة الصحيحة',
+  ELIMINATION:'مين نزّل شنطه؟', RESULTS:'مَن على الطريق',
+  NEXT_ROUND:'بين المحطات', WINNER:'اعتلوا القمة!', END:'انتهت', PAUSED:'⏸ إيقاف'
+};
+
+function connect() {
+  const p = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  ws = new WebSocket(`${p}//${location.host}?role=admin`);
+  ws.onopen = () => {
+    document.getElementById('connBadge').className = 'conn on';
+    document.getElementById('connText').textContent = 'متصل';
+    log('✓ متصل');
+  };
+  ws.onclose = () => {
+    document.getElementById('connBadge').className = 'conn off';
+    document.getElementById('connText').textContent = 'غير متصل';
+    log('✗ انقطع');
+    setTimeout(connect, 2000);
+  };
+  ws.onmessage = (e) => {
+    const m = JSON.parse(e.data);
+    if (m.type === 'state') handleState(m.data);
+    if (m.type === 'timer') document.getElementById('sTimer').textContent = m.data.timer + 's';
+  };
+}
+
+function send(type, data = {}) {
+  if (ws && ws.readyState === WebSocket.OPEN) { ws.send(JSON.stringify({type,data})); log('→ ' + type); }
+}
+
+function saveSetup() {
+  send('admin_setup', {
+    tableCount: parseInt(document.getElementById('inTables').value),
+    eventName: document.getElementById('inEvent').value,
+    questionTimer: parseInt(document.getElementById('inTimer').value)
+  });
+  log('⚙️ حُفظت الإعدادات');
+}
+
+function saveQuestions() {
+  const qs = [];
+  document.querySelectorAll('.q-editor').forEach((el, i) => {
+    const text = el.querySelector('.q-text').value.trim();
+    if (!text) return;
+    const choices = [];
+    el.querySelectorAll('.q-choice-input').forEach(inp => choices.push(inp.value.trim() || ''));
+    const correctRadio = el.querySelector('input[type=radio]:checked');
+    const correctIndex = correctRadio ? parseInt(correctRadio.value) : 0;
+    qs.push({ text, choices, correctIndex });
+  });
+  if (qs.length === 0) { alert('أضف سؤالاً واحداً على الأقل'); return; }
+  send('admin_set_questions', { questions: qs });
+  log(`📝 حُفظت ${qs.length} أسئلة`);
+}
+
+function handleState(d) {
+  const phase = d.phase;
+  const changed = phase !== gamePhase;
+  gamePhase = phase;
+  if (changed) log('📍 ' + (PHASE_NAMES[phase] || phase));
+
+  document.getElementById('phaseName').textContent = PHASE_NAMES[phase] || phase;
+  document.getElementById('phaseInfo').textContent = d.currentRound > 0 ? `الجولة ${d.currentRound}/${d.totalRounds} — ${d.activeTableCount || 0} طاولة حية` : '';
+  document.getElementById('sPlayers').textContent = d.playerCount;
+  document.getElementById('sRound').textContent = d.currentRound || 0;
+  document.getElementById('sAlive').textContent = d.activeTableCount || 0;
+
+  const btn = (id) => document.getElementById(id);
+  btn('btnLobby').disabled = phase !== 'SETUP';
+  btn('btnRound').disabled = !['LOBBY','NEXT_ROUND','RESULTS'].includes(phase);
+  btn('btnNext').disabled = !['QUESTION','ELIMINATION','RESULTS'].includes(phase);
+  btn('btnPause').disabled = phase !== 'QUESTION';
+  btn('btnResume').disabled = phase !== 'PAUSED';
+  btn('btnSkip').disabled = !['QUESTION','ELIMINATION','RESULTS'].includes(phase);
+  btn('btnWinner').disabled = !['RESULTS','NEXT_ROUND'].includes(phase);
+  btn('btnEnd').disabled = !['WINNER','RESULTS','NEXT_ROUND','PAUSED'].includes(phase);
+  btn('btnReset').classList.toggle('hidden', phase !== 'END');
+
+  // Pulse primary action
+  ['btnLobby','btnRound','btnNext','btnPause','btnResume','btnSkip','btnWinner','btnEnd'].forEach(id => btn(id).classList.remove('pulse-action'));
+  const pMap = {SETUP:'btnLobby', LOBBY:'btnRound', RESULTS:'btnRound', NEXT_ROUND:'btnRound', PAUSED:'btnResume'};
+  if (pMap[phase]) btn(pMap[phase]).classList.add('pulse-action');
+
+  document.getElementById('setupSection').style.display = phase === 'SETUP' ? 'block' : 'none';
+  document.getElementById('questionSection').style.display = phase === 'SETUP' ? 'block' : 'none';
+
+  // Load questions from server on first state
+  if (d.questions && localQuestions.length === 0) {
+    localQuestions = d.questions;
+    renderQuestionEditor();
+  }
+
+  // Table grid
+  if (d.tableCounts) renderTableGrid(d);
+}
+
+function renderTableGrid(d) {
+  const grid = document.getElementById('tableGrid');
+  grid.innerHTML = '';
+  for (let t = 1; t <= (d.tableCount || 30); t++) {
+    const c = (d.tableCounts || {})[t] || 0;
+    const alive = (d.activeTables || []).includes(t);
+    const dead = (d.eliminatedTables || []).includes(t);
+    let cls = 'tg-cell';
+    if (dead) cls += ' dead';
+    else if (alive || c > 0) cls += ' active';
+    else cls += ' empty';
+    grid.innerHTML += `<div class="${cls}"><div style="font-size:11px;color:var(--white30)">${t}</div><div style="font-size:14px;font-weight:800">${c}</div></div>`;
+  }
+}
+
+// ── Question Editor ──
+function renderQuestionEditor() {
+  const container = document.getElementById('questionsContainer');
+  container.innerHTML = '';
+  localQuestions.forEach((q, i) => {
+    container.innerHTML += buildQuestionHTML(i, q);
+  });
+  document.getElementById('qCount').textContent = `${localQuestions.length} سؤال`;
+}
+
+function buildQuestionHTML(i, q) {
+  const choices = (q.choices || ['','','','']).map((c, ci) => {
+    const checked = ci === (q.correctIndex || 0) ? 'checked' : '';
+    return `<div class="q-choice-row">
+      <input type="radio" name="correct-${i}" value="${ci}" ${checked}>
+      <input class="q-input q-choice-input" value="${c}" placeholder="الخيار ${ci+1}">
+    </div>`;
+  }).join('');
+
+  return `<div class="q-editor" data-idx="${i}">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div class="q-num">سؤال ${i+1}</div>
+      <button class="q-del" onclick="removeQuestion(${i})">🗑</button>
+    </div>
+    <input class="q-input q-text" value="${q.text || ''}" placeholder="نص السؤال">
+    <div class="q-choices-grid">${choices}</div>
+    <div style="font-size:12px;color:var(--white30);margin-top:4px">● = الإجابة الصحيحة</div>
+  </div>`;
+}
+
+function addQuestion() {
+  localQuestions.push({ text: '', choices: ['','','',''], correctIndex: 0 });
+  renderQuestionEditor();
+  // Scroll to bottom
+  const container = document.getElementById('questionsContainer');
+  container.lastElementChild?.scrollIntoView({ behavior: 'smooth' });
+}
+
+function removeQuestion(i) {
+  localQuestions.splice(i, 1);
+  renderQuestionEditor();
+}
+
+function log(msg) {
+  const box = document.getElementById('logBox');
+  const time = new Date().toLocaleTimeString('en', {hour12:false});
+  box.textContent = `[${time}] ${msg}\n` + box.textContent;
+  if (box.textContent.length > 5000) box.textContent = box.textContent.slice(0, 5000);
+}
+
+connect();
+</script>
+</body>
+</html>
