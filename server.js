@@ -190,6 +190,7 @@ let gameState = {
 
 let timerInterval = null;
 let playerIdCounter = 0;
+let joinBroadcastPending = false;
 
 // ─── HELPERS ────────────────────────────────────────────────────────
 
@@ -382,7 +383,23 @@ function clearTimer() {
   gameState.timerRunning = false;
 }
 
-// ─── BROADCASTING ───────────────────────────────────────────────────
+// ─── THROTTLED ANSWER COUNT BROADCAST ────────────────────────────────
+let answerBroadcastPending = false;
+function broadcastAnswerCount() {
+  if (answerBroadcastPending) return; // Already scheduled
+  answerBroadcastPending = true;
+  setTimeout(() => {
+    answerBroadcastPending = false;
+    if (gameState.phase !== PHASES.QUESTION) return;
+    const count = Object.keys(gameState.answers).length;
+    const msg = JSON.stringify({ type: 'answer_count', data: { count } });
+    wss.clients.forEach(ws => {
+      if (ws.readyState === WebSocket.OPEN && (ws._role === 'display' || ws._role === 'admin')) {
+        ws.send(msg);
+      }
+    });
+  }, 300); // Max 3 broadcasts per second
+}
 
 function buildStateForClient(role, playerId) {
   const base = {
@@ -431,7 +448,15 @@ function buildStateForClient(role, playerId) {
   // Winner
   if (['WINNER','END'].includes(gameState.phase)) {
     base.leaderboard = getLeaderboard();
-    base.winner = gameState.activeTables.length === 1 ? gameState.activeTables[0] : null;
+    if (gameState.activeTables.length === 1) {
+      base.winner = gameState.activeTables[0];
+    } else if (gameState.activeTables.length > 1) {
+      // Admin declared winner early — pick table with highest cumulative score
+      const lb = getLeaderboard();
+      base.winner = lb.length > 0 ? lb[0].table : null;
+    } else {
+      base.winner = null;
+    }
   }
 
   // Player-specific
@@ -602,7 +627,13 @@ function handleMessage(ws, msg) {
         ws, connected: true, joinedAt: Date.now()
       };
       sendToClient(ws, 'joined', { playerId, name: name.trim(), table: parseInt(tableNumber) });
-      broadcastState();
+      // Throttle broadcast during mass join to avoid O(n²) messages
+      broadcastAnswerCount(); // Reuse throttle — just triggers count update to admin/display
+      // Full state sent only to admin periodically
+      if (!joinBroadcastPending) {
+        joinBroadcastPending = true;
+        setTimeout(() => { joinBroadcastPending = false; broadcastState(); }, 500);
+      }
       break;
     }
 
@@ -617,7 +648,8 @@ function handleMessage(ws, msg) {
       gameState.answers[pid] = choiceIndex;
       gameState.answerTimes[pid] = Date.now();
       sendToClient(ws, 'answer_confirmed', { correct: choiceIndex === gameState.currentQuestion.correctIndex });
-      broadcastState();
+      // Lightweight broadcast — only send count to display/admin, NOT full state to all 400+ players
+      broadcastAnswerCount();
       break;
     }
 
